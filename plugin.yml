@@ -1,0 +1,7 @@
+name: SignLib
+version: 1.0.1
+main: me.x313.signlib.Main
+description: a sign libary
+commands: 
+ signlib: 
+  description: The Main Command

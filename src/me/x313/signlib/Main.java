@@ -38,6 +38,7 @@ public class Main extends JavaPlugin implements Listener, SignListener {
 
 		pm.registerEvents(lib, this);
 		pm.registerEvents(this, this);
+		reloaldPlugin();
 	}
 
 	@Override
@@ -49,15 +50,13 @@ public class Main extends JavaPlugin implements Listener, SignListener {
 		if (commandLabel.equalsIgnoreCase("SignLib")) {
 
 			if (args.length == 0) {
-				sender.sendMessage(ChatColor.DARK_GRAY + "----------------" + ChatColor.GOLD + " SignLib "
+				sender.sendMessage(ChatColor.DARK_GRAY + "----------------" + ChatColor.DARK_GREEN + " SignLib "
 						+ ChatColor.DARK_GRAY + "----------------");
 				sender.sendMessage(ChatColor.GRAY + "Version: " + ChatColor.WHITE + version());
 				sender.sendMessage(ChatColor.GRAY + "By " + ChatColor.WHITE + "x313");
 				return true;
 			} else {
-				
-				switch(args[0]) {
-				case "help":
+				if(args[0].equalsIgnoreCase("help")) {
 					if (sender.hasPermission("SignLib.*") || sender.hasPermission("SignLib.set")
 							|| sender.hasPermission("SignLib.remove") || sender.hasPermission("SignLib.test")) {
 								
@@ -67,8 +66,7 @@ public class Main extends JavaPlugin implements Listener, SignListener {
 					} else {
 						sender.sendMessage(wrongPerm());
 					}
-					break;
-				case "setSign": 
+				} else if(args[0].equalsIgnoreCase("setSign")) {
 					if(sender instanceof Player) {
 						if(!(sender.hasPermission("SignLib.*") || sender.hasPermission("SignLib.set"))) {
 							sender.sendMessage(wrongPerm());
@@ -85,16 +83,14 @@ public class Main extends JavaPlugin implements Listener, SignListener {
 						sender.sendMessage(ChatColor.DARK_GREEN + "[SignLib] " + ChatColor.RED + "This option is not for Console");
 						return false;
 					}
-					break;
-				case "removeSign":
+				} else if(args[0].equalsIgnoreCase("removeSign")) {
 					if(!(sender.hasPermission("SignLib.*") || sender.hasPermission("SignLib.remove"))) {
 						sender.sendMessage(wrongPerm());
 						return false;
 					}
 					saveSignLocation(null);
 					sender.sendMessage(ChatColor.DARK_GREEN + "[SignLib] " + ChatColor.GREEN + "Removed the Sign!");
-					break;
-				case "test": 
+				}  else if(args[0].equalsIgnoreCase("test")) {
 					if(!(sender.hasPermission("SignLib.*") || sender.hasPermission("SignLib.test"))) {
 						sender.sendMessage(wrongPerm());
 						return false;
@@ -104,6 +100,8 @@ public class Main extends JavaPlugin implements Listener, SignListener {
 						return false;
 					}					
 					lib.addEvent(new SignAPIEvent(this, (Player) sender));
+				} else {
+					sender.sendMessage(ChatColor.DARK_GREEN + "[SignLib] " + ChatColor.RED + "The Argument " + ChatColor.YELLOW + args[0] + " doesn't exists!");
 				}
 				
 				
@@ -132,9 +130,9 @@ public class Main extends JavaPlugin implements Listener, SignListener {
 		String[] s = new String[4];
 
 		if(loc != null) {
-			s[0] = String.valueOf(loc.getX());
-			s[1] = String.valueOf(loc.getY());
-			s[2] = String.valueOf(loc.getZ());
+			s[0] = String.valueOf(loc.getBlockX());
+			s[1] = String.valueOf(loc.getBlockY());
+			s[2] = String.valueOf(loc.getBlockZ());
 			s[3] = loc.getWorld().getName();
 		}else {
 			s[0] = "-1";
@@ -211,5 +209,15 @@ public class Main extends JavaPlugin implements Listener, SignListener {
 	public void onSignInput(SignAPIEvent event) {
 		event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "[SignLib] " + ChatColor.GREEN + "You typed in: " + ChatColor.YELLOW + event.getText() + ChatColor.GREEN + "!");
 		
+	}
+	
+	private void reloaldPlugin() {
+
+		File dir = getDataFolder();
+
+		if (!dir.exists())
+			if (!dir.mkdir())
+				System.out.println("Could not create directory for plugin: " + getDescription().getName());
+
 	}
 }

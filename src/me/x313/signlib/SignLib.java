@@ -3,6 +3,7 @@ package me.x313.signlib;
 import java.util.ArrayList;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -37,6 +38,7 @@ public class SignLib implements Listener{
 	}
 
 	public void openSign(Player player, Sign sign) {
+		sign.setLine(0, "Line One");
 		openSign(player, sign.getLocation());
 	}
 	
@@ -44,18 +46,21 @@ public class SignLib implements Listener{
         TileEntitySign t = (TileEntitySign) ((CraftWorld) loc.getWorld()).getTileEntityAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
         t.a(((CraftPlayer) player).getHandle());
         t.isEditable = true;
-        PacketPlayOutOpenSignEditor packet = new PacketPlayOutOpenSignEditor(BlockPosition.PooledBlockPosition.d(loc.getX(),loc.getY(),loc.getZ()));
+        t.update();
+               
+        PacketPlayOutOpenSignEditor packet = new PacketPlayOutOpenSignEditor(BlockPosition.PooledBlockPosition.d(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);  
 	}
 	
 	public void addEvent(SignAPIEvent event) {
 		if (!events.contains(event)) {
-			events.add(event);
 			if(signLocation == null) {
 				event.getPlayer().sendMessage(ChatColor.RED + "No sign found!");
 				return;
 			}
-			openSign(event.getPlayer(), signLocation);
+			events.add(event);
+			resetLines();
+			openSign(event.getPlayer(), getSigstatenAt(signLocation));
 		}
 	}
 	
@@ -64,23 +69,49 @@ public class SignLib implements Listener{
 		Player p = event.getPlayer();
 		for (int i = events.size() - 1; i >= 0; i--) {
 			SignAPIEvent e = events.get(i);
-			if (e.isExecuted()) {
 				if (e.getPlayer().equals(p)) {
 					e.setText(event.getLine(0));
 					e.getListener().onSignInput(e);
 					events.remove(e);
 				}
-			}
 		}
 	}
 	
+	
+	private void resetLines() {
+		Sign sign = getSignAt(signLocation);
+        if(sign != null) {
+        	sign.setLine(0, "");
+        	sign.setLine(1, "Type Above Here");
+        	sign.setLine(2, "");
+        	sign.setLine(3, "");
+        	sign.update();
+        }		
+	}
+	
+
+	
+
 	public static Sign getSignAt(Location loc) {
-		Block block = loc.getBlock();
-		BlockState state = block.getState();
-		if (!(state instanceof Sign)) {
-			return null; // block is not a sign
+		if(loc != null) {			
+			Block b = loc.getBlock();
+	        if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
+	        	Sign sign = (Sign) b.getState();
+	        	return sign;
+	        }
 		}
-		Sign sign = (Sign) state;
+		return null;
+	}
+	
+	private Sign getSigstatenAt(Location loc) {
+		Sign sign = null;
+		if(loc != null) {
+			Block block = loc.getBlock();
+			BlockState state = block.getState();
+			if ((state instanceof Sign)) {
+				sign = (Sign) state;
+			}		
+		}
 		return sign;
 	}
 
@@ -90,5 +121,6 @@ public class SignLib implements Listener{
 	
 	public void refreshSign() {
 		signLocation = main.loadSignLocation();
+		resetLines();
 	}
 }
