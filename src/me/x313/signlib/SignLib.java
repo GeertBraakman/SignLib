@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
@@ -38,7 +37,10 @@ public class SignLib implements Listener{
 	}
 
 	public void openSign(Player player, Sign sign) {
-		sign.setLine(0, "Line One");
+		if(sign == null) {
+			player.sendMessage(ChatColor.RED + "No sign found!");
+			return;
+		}
 		openSign(player, sign.getLocation());
 	}
 	
@@ -54,13 +56,13 @@ public class SignLib implements Listener{
 	
 	public void addEvent(SignAPIEvent event) {
 		if (!events.contains(event)) {
-			if(signLocation == null) {
+			if(signLocation == null || getSignAt(signLocation) == null) {
 				event.getPlayer().sendMessage(ChatColor.RED + "No sign found!");
 				return;
 			}
 			events.add(event);
 			resetLines();
-			openSign(event.getPlayer(), getSigstatenAt(signLocation));
+			openSign(event.getPlayer(), signLocation);
 		}
 	}
 	
@@ -103,17 +105,17 @@ public class SignLib implements Listener{
 		return null;
 	}
 	
-	private Sign getSigstatenAt(Location loc) {
-		Sign sign = null;
-		if(loc != null) {
-			Block block = loc.getBlock();
-			BlockState state = block.getState();
-			if ((state instanceof Sign)) {
-				sign = (Sign) state;
-			}		
-		}
-		return sign;
-	}
+//	private Sign getSigstatenAt(Location loc) {
+//		Sign sign = null;
+//		if(loc != null) {
+//			Block block = loc.getBlock();
+//			BlockState state = block.getState();
+//			if ((state instanceof Sign)) {
+//				sign = (Sign) state;
+//			}		
+//		}
+//		return sign;
+//	}
 
 	public boolean isSignSet() {
 		return (getSignAt(signLocation) != null);

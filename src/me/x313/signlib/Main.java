@@ -98,8 +98,9 @@ public class Main extends JavaPlugin implements Listener, SignListener {
 					if(!(sender instanceof Player)) {
 						sender.sendMessage(ChatColor.DARK_GREEN + "[SignLib] " + ChatColor.RED + "This option is not for Console");
 						return false;
-					}					
-					lib.addEvent(new SignAPIEvent(this, (Player) sender));
+					}		
+					Player player = (Player) sender;
+					lib.addEvent(new SignAPIEvent(this, player));
 				} else {
 					sender.sendMessage(ChatColor.DARK_GREEN + "[SignLib] " + ChatColor.RED + "The Argument " + ChatColor.YELLOW + args[0] + " doesn't exists!");
 				}
